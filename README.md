@@ -47,6 +47,9 @@ web app's "Why do the column names look strange?" section, backed by a full bili
 
 A standard web app (no front-end framework) that embeds the champion model + fitted scaler:
 
+- **Live demo:** https://credit-card-fraud-detection-netro3.vercel.app
+- Repository: https://github.com/AbdelGad0/credit-card-fraud-detection
+
 - Upload **CSV / XLSX** (drag & drop) → batch classification, summary cards, probability
   distribution chart, flagged transactions, full results, downloadable CSV.
 - Automatic **verification metrics** (PR-AUC / ROC-AUC / Precision / Recall / F1 /
@@ -66,6 +69,19 @@ C:\Users\abdel\anaconda3\python.exe webapp/app.py --port 8000
 
 > Uses the same environment that trained the model (`anaconda3`).
 
+### Deployed on Vercel
+
+The Flask app runs as a Python serverless function (`api/index.py` via `vercel.json`).
+Notes for deployment:
+
+- `.vercelignore` excludes heavy training artifacts (`creditcard.csv`, `X_train*`,
+  non-champion models…) — only `LightGBM_smote.pkl`, `scaler.pkl`, `X_test/y_test.pkl`
+  and `best_model.json` ship with the function.
+- Serverless filesystems are read-only: `config.py` tolerates `mkdir` failures, and
+  `deployment/predictor.py` preloads a vendored `libgomp.so.1` (Vercel's runtime lacks
+  OpenMP) before LightGBM loads.
+- Redeploy with: `vercel --prod --yes` (from the repo root).
+
 ## 🗂️ Project structure
 
 ```
@@ -75,6 +91,8 @@ C:\Users\abdel\anaconda3\python.exe webapp/app.py --port 8000
 │   ├── predictor.py                   # inference pipeline (single entry point)
 │   └── schema.py                      # friendly names + bilingual glossary
 ├── webapp/                            # Flask web app (JSON API + static frontend)
+├── api/index.py                       # Vercel serverless entry point
+├── vendor/libgomp.so.1               # OpenMP shim for serverless runtimes
 └── outputs/                           # model weights, scaler, metrics, figures
 ```
 
