@@ -33,9 +33,13 @@ FIG_DIR = ROOT / "outputs" / "figures"
 # Tabular results (metrics comparison, EDA summary)
 RESULTS_DIR = ROOT / "outputs"
 
-# Ensure all output folders exist on import
+# Ensure all output folders exist on import (best-effort: on serverless
+# platforms like Vercel the filesystem is read-only and this must not crash).
 for _dir in (DATA_DIR, MODEL_DIR, FIG_DIR, RESULTS_DIR):
-    _dir.mkdir(parents=True, exist_ok=True)
+    try:
+        _dir.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        pass
 
 # ---------------------------------------------------------------------------
 # Dataset structure
