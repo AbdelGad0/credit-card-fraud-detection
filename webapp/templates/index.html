@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title data-i18n="app.title">Credit Card Fraud Detection Platform</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <button type="button" id="langToggle" class="lang-btn" aria-label="Switch language">العربية</button>
+      <h1 data-i18n="app.title">🛡️ Credit Card Fraud Detection Platform</h1>
+      <p class="subtitle" data-i18n="app.subtitle">
+        Classify new transactions as Fraud / Legitimate through an embedded LightGBM
+        model (trained on 284,807 transactions — PR-AUC = 0.880) — no retraining needed.
+      </p>
+      <div class="badges">
+        <span class="badge" data-i18n="badge.model">Model: LightGBM (SMOTE)</span>
+        <span class="badge">PR-AUC 0.880</span>
+        <span class="badge">ROC-AUC 0.982</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ============ Why are column names strange (always visible) ============ -->
+    <section class="card info-card" id="colInfo">
+      <h2 data-i18n="cols.title">❓ Why do the column names look strange?</h2>
+      <p data-i18n="cols.pca">
+        The dataset was <b>anonymized by the issuing bank</b>: the columns
+        <code>V1–V28</code> are <b>not</b> real-world features. They are
+        <b>Principal Components</b> (a dimensionality-reduction transform) of 28
+        original, confidential card-usage features. The originals were withheld for
+        confidentiality, so <b>no public real-world name exists</b> for them — the
+        model learns fraud patterns directly from these components.
+      </p>
+      <ul class="cols-list">
+        <li data-i18n="cols.time"><code>Time</code> = seconds elapsed since the first transaction (two consecutive days are covered).</li>
+        <li data-i18n="cols.amount"><code>Amount</code> = the transaction amount in the original currency.</li>
+        <li data-i18n="cols.class"><code>Class</code> = the label (1 = fraud, 0 = legitimate), used for training/evaluation only — never a model input.</li>
+        <li data-i18n="cols.upload">Uploads accept the technical names above <b>or</b> friendlier display names (e.g. <code>Anonymized_PC_01</code>, <code>Transaction_Amount</code>) — both work.</li>
+      </ul>
+      <details class="inline-details">
+        <summary data-i18n="cols.more">📖 Full column glossary (33 columns)…</summary>
+        <div id="glossaryNote" class="note"></div>
+        <div class="table-wrap"><table id="glossaryTable"></table></div>
+      </details>
+    </section>
+
+    <!-- ============ Settings & data source ============ -->
+    <section class="card" id="controls">
+      <div class="card-head"><h2 data-i18n="controls.title">⚙️ Settings &amp; data source</h2></div>
+
+      <div class="field">
+        <label for="threshold"><span data-i18n="threshold.label">Fraud threshold:</span> <b id="thresholdVal">0.9944</b></label>
+        <input type="range" id="threshold" min="0" max="1" step="0.01" value="0.9944" />
+        <p class="hint" data-i18n="threshold.help">Transactions whose fraud probability exceeds this threshold are flagged as fraud.</p>
+      </div>
+
+      <div class="upload-zone" id="dropZone">
+        <input type="file" id="fileInput" accept=".csv,.xlsx" hidden />
+        <div class="drop-inner">
+          <div class="drop-icon">📂</div>
+          <p><span data-i18n="upload.drop">Drag &amp; drop a CSV or XLSX file here, or</span> <button type="button" id="browseBtn" class="link-btn" data-i18n="upload.browse">browse files</button></p>
+          <p class="hint" data-i18n="upload.hint">Technical headers (<code>Time, V1..V28, Amount</code>) or friendly ones (<code>Seconds_Since_First_Transaction, Anonymized_PC_01…</code>) are both accepted.</p>
+        </div>
+      </div>
+
+      <div class="row btns">
+        <button type="button" id="sampleBtn" class="btn ghost" data-i18n="btns.sample">🧪 Holdout test sample (5 rows)</button>
+        <button type="button" id="singleBtn" class="btn ghost" data-i18n="btns.single">✍️ Check a single transaction manually</button>
+      </div>
+
+      <div id="singlePanel" class="hidden">
+        <h3 data-i18n="single.title">🧪 Manual single-transaction check</h3>
+        <div class="grid inputs">
+          <label data-i18n="single.time">Time (seconds since first transaction)
+            <input type="number" id="inp_Time" step="0.01" value="0" />
+          </label>
+          <label data-i18n="single.amount">Amount (original currency)
+            <input type="number" id="inp_Amount" step="0.01" value="0" />
+          </label>
+        </div>
+        <div class="grid inputs" id="vInputs"></div>
+        <div class="row btns">
+          <button type="button" id="analyzeBtn" class="btn primary" data-i18n="single.analyze">🔍 Analyze transaction</button>
+        </div>
+        <div id="singleResult"></div>
+      </div>
+
+      <div id="statusBar" class="hidden"></div>
+    </section>
+
+    <!-- ============ Results ============ -->
+    <section class="card hidden" id="results">
+      <div class="card-head"><h2 data-i18n="results.title">📊 Classification results</h2></div>
+      <p id="sourceLine" class="hint"></p>
+
+      <div class="cards" id="summaryCards"></div>
+      <div class="cards" id="metricsCards"></div>
+      <div id="metricsNote" class="hint"></div>
+
+      <div class="charts">
+        <div class="chart"><img id="chartHist" alt="Fraud probability distribution" /></div>
+        <div class="chart"><img id="chartCat" alt="Prediction classes" /></div>
+      </div>
+
+      <h3 data-i18n="flagged.title">📋 Flagged transactions 🔴</h3>
+      <div class="table-wrap"><table id="flaggedTable"></table></div>
+
+      <h3 data-i18n="results.full">📄 Full results</h3>
+      <div class="table-wrap"><table id="resultsTable"></table></div>
+
+      <div class="row btns">
+        <button type="button" id="downloadBtn" class="btn primary" data-i18n="dl.btn">⬇️ Download results (CSV)</button>
+      </div>
+    </section>
+
+    <!-- ============ Technical details ============ -->
+    <section class="card">
+      <details>
+        <summary><h2 data-i18n="about.title">ℹ️ Technical details about this platform</h2></summary>
+        <ul class="about">
+          <li data-i18n="about.model"><b>Model:</b> <code>LightGBM_smote.pkl</code> (best: PR-AUC 0.880) + <code>scaler.pkl</code> (RobustScaler fitted on training data only).</li>
+          <li data-i18n="about.transform"><b>Preprocessing:</b> <code>Amount</code> and <code>Time</code> are scaled with the same scaler and order used in training (<code>[Amount, Time]</code>), then the 30 features are ordered exactly as the model expects: <code>V1..V28, Time_Scaled, Amount_Scaled</code>.</li>
+          <li data-i18n="about.threshold"><b>Default threshold:</b> 0.9944 (F1-optimal on the test set) — adjustable with the slider above.</li>
+          <li data-i18n="about.eval"><b>Evaluation:</b> when the file contains a <code>Class</code> column, verification metrics are shown (PR-AUC / ROC-AUC / Precision / Recall / F1 / Confusion Matrix).</li>
+          <li data-i18n="about.src"><b>Source:</b> <code>webapp/app.py</code> (server) + <code>deployment/predictor.py</code> (inference) + <code>deployment/schema.py</code> (friendly names &amp; glossary).</li>
+        </ul>
+      </details>
+    </section>
+
+    <footer class="foot" data-i18n="foot">Graduation project — Credit Card Fraud Detection · LightGBM</footer>
+  </main>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

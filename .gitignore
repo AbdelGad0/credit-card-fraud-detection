@@ -1,0 +1,31 @@
+# ---- dataset (too large for GitHub, not needed to run predictions) ----
+creditcard.csv
+/data/
+
+# ---- python ----
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ---- local runtime logs / pid files ----
+*.log
+app_out.txt
+app_err.txt
+webapp_out.txt
+webapp_err.txt
+*.pid.txt
+
+# ---- heavy training artifacts: keep ONLY what the web app deploys ----
+outputs/models/*.pkl
+outputs/data/*.pkl
+!outputs/models/LightGBM_smote.pkl
+!outputs/data/scaler.pkl
+!outputs/data/X_test.pkl
+!outputs/data/y_test.pkl
+
+# ---- local vercel / editor ----
+.vercel/
+.vscode/
+.idea/
+.DS_Store

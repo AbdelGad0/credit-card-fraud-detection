@@ -1,0 +1,20 @@
+{
+  "train_rows": 227845,
+  "test_rows": 56962,
+  "train_fraud_pct": 0.1729,
+  "test_fraud_pct": 0.172,
+  "scaler": "RobustScaler",
+  "scaled_columns": [
+    "Amount_Scaled",
+    "Time_Scaled"
+  ],
+  "n_features": 30,
+  "medians": [
+    22.0,
+    84805.0
+  ],
+  "iqr_scales": [
+    71.85,
+    85136.0
+  ]
+}

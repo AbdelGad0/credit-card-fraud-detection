@@ -1,0 +1,8 @@
+{
+  "model": "LightGBM",
+  "variant": "smote",
+  "PR_AUC": 0.8799,
+  "ROC_AUC": 0.982,
+  "opt_threshold": 0.9944,
+  "file": "LightGBM_smote.pkl"
+}

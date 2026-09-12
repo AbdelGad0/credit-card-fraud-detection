@@ -1,0 +1,18 @@
+{
+  "method": "SMOTE",
+  "sampling_strategy": "1.0 (fully balanced)",
+  "k_neighbors": 5,
+  "class_counts_before": {
+    "0": 227451,
+    "1": 394
+  },
+  "class_counts_after": {
+    "0": 227451,
+    "1": 227451
+  },
+  "synthetic_minority_generated": 227057,
+  "n_rows_before": 227845,
+  "n_rows_after": 454902,
+  "test_set_untouched": true,
+  "leakage_prevention": "Resampling applied AFTER train/test split; fitted on train only."
+}

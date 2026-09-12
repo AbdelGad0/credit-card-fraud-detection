@@ -1,0 +1,96 @@
+{
+  "model_variants": [
+    {
+      "model": "LogisticRegression",
+      "variant": "weighted",
+      "path": "LogisticRegression_weighted.pkl",
+      "time_s": 0.0
+    },
+    {
+      "model": "LogisticRegression",
+      "variant": "smote",
+      "path": "LogisticRegression_smote.pkl",
+      "time_s": 4.6
+    },
+    {
+      "model": "RandomForest",
+      "variant": "weighted",
+      "path": "RandomForest_weighted.pkl",
+      "time_s": 0.0
+    },
+    {
+      "model": "RandomForest",
+      "variant": "smote",
+      "path": "RandomForest_smote.pkl",
+      "time_s": 279.0
+    },
+    {
+      "model": "XGBoost",
+      "variant": "weighted",
+      "path": "XGBoost_weighted.pkl",
+      "time_s": 0.0
+    },
+    {
+      "model": "XGBoost",
+      "variant": "smote",
+      "path": "XGBoost_smote.pkl",
+      "time_s": 10.5
+    },
+    {
+      "model": "LightGBM",
+      "variant": "weighted",
+      "path": "LightGBM_weighted.pkl",
+      "time_s": 0.0
+    },
+    {
+      "model": "LightGBM",
+      "variant": "smote",
+      "path": "LightGBM_smote.pkl",
+      "time_s": 9.4
+    }
+  ],
+  "hyperparameters": {
+    "LogisticRegression": {
+      "best_params_original": {
+        "C": 10.0
+      },
+      "mean_cv_PR_AUC_original": 0.75584,
+      "scale_pos_weight": 577.2868020304569
+    },
+    "RandomForest": {
+      "best_params_original": {
+        "n_estimators": 300,
+        "min_samples_leaf": 1,
+        "max_depth": null
+      },
+      "mean_cv_PR_AUC_original": 0.84118,
+      "scale_pos_weight": 577.2868020304569
+    },
+    "XGBoost": {
+      "best_params_original": {
+        "scale_pos_weight": 577.2868020304569,
+        "n_estimators": 350,
+        "max_depth": 4,
+        "learning_rate": 0.1
+      },
+      "mean_cv_PR_AUC_original": 0.84284,
+      "scale_pos_weight": 577.2868020304569
+    },
+    "LightGBM": {
+      "best_params_original": {
+        "subsample_freq": 1.0,
+        "subsample": 0.7,
+        "scale_pos_weight": 577.2868020304569,
+        "reg_lambda": 5.0,
+        "num_leaves": 200.0,
+        "n_estimators": 500.0,
+        "min_child_samples": 5.0,
+        "learning_rate": 0.03,
+        "colsample_bytree": 0.5
+      },
+      "mean_cv_PR_AUC_original": 0.82502,
+      "scale_pos_weight": 577.2868020304569,
+      "note": "Re-tuned with min_child_samples <= 20; initial pass used LGBM default (20) -> 0.055 PR-AUC."
+    }
+  }
+}
