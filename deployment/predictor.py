@@ -32,6 +32,27 @@ import sys
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+import ctypes  # noqa: E402
+
+
+def _preload_libgomp() -> None:
+    """Expose OpenMP before lightgbm/sklearn dlopen it at runtime.
+
+    Serverless runtimes (Vercel, AWS Lambda) ship Python without libgomp, so
+    a vendored copy is loaded into the process first; later dlopen() calls for
+    ``libgomp.so.1`` are then resolved from the already-loaded object.
+    """
+    for lib in (ROOT / "vendor" / "libgomp.so.1", ROOT / "vendor" / "libgomp.so.1.0.0"):
+        if lib.exists():
+            try:
+                ctypes.CDLL(str(lib), mode=ctypes.RTLD_GLOBAL)
+                return
+            except OSError:
+                continue
+
+
+_preload_libgomp()
+
 import config as cfg  # noqa: E402
 
 REQUIRED_COLS = cfg.V_COLS + [cfg.TIME_COL, cfg.AMOUNT_COL]   # 30 raw columns
