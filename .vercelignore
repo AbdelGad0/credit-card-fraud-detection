@@ -1,0 +1,34 @@
+# local / tooling
+.git
+.vercel
+.venv
+venv
+node_modules
+__pycache__
+*.pyc
+*.log
+*.pid.txt
+.env*
+
+# dataset (not needed at runtime)
+creditcard.csv
+/data/
+
+# screenshots are for the README only
+screenshots/
+
+# plotting artifacts not used by the app
+outputs/figures/
+
+# heavy training artifacts — KEEP only what the app deploys at runtime
+outputs/data/X_train.pkl
+outputs/data/X_train_resampled.pkl
+outputs/data/y_train.pkl
+outputs/data/y_train_resampled.pkl
+outputs/models/RandomForest_smote.pkl
+outputs/models/RandomForest_weighted.pkl
+outputs/models/LightGBM_weighted.pkl
+outputs/models/XGBoost_smote.pkl
+outputs/models/XGBoost_weighted.pkl
+outputs/models/LogisticRegression_smote.pkl
+outputs/models/LogisticRegression_weighted.pkl
